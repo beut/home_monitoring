@@ -1,0 +1,15 @@
+.claude/
+
+# Android / Kotlin / Gradle (android/)
+android/build/
+android/app/build/
+android/.gradle/
+android/local.properties
+android/.idea/
+android/*.iml
+android/app/*.iml
+android/captures/
+android/.cxx/
+*.class
+*.log
+.DS_Store
