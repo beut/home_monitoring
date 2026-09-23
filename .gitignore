@@ -13,3 +13,14 @@ android/.cxx/
 *.class
 *.log
 .DS_Store
+
+# Kotlin / IDE / misc
+android/.kotlin/
+.idea/
+.vscode/
+*.jar
+!android/gradle/wrapper/gradle-wrapper.jar
+*.tmp
+*.swp
+Thumbs.db
+.env*

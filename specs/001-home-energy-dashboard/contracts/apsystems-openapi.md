@@ -2,6 +2,8 @@
 
 The app is a **client** of this API. This contract fixes the subset the app relies on, which was verified live on 2026-09-23. Automated tests use fixtures of exactly these shapes and never hit the real API.
 
+The error code meanings are taken from the community integration [emlynmac/apsystems-openapi](https://github.com/emlynmac/apsystems-openapi), because the official manual PDF could not be machine-read.
+
 ## Base and authentication
 
 - Base URL: `https://api.apsystemsema.com:9282`
@@ -38,8 +40,11 @@ All responses are HTTP 200 with a JSON body `{"code": <int>, "data": <any>}`.
 |---|---|---|
 | 0 | Success | Parse `data` |
 | 1001 | No data (for example no samples yet today) | Not an error. Report `NoDataYet` (zero power, today = 0 or null) |
-| 2000–2999 | Account, AppId, SID or signature problems | `AuthError`. The section asks the user to check the credentials |
-| 7001, 7002, 7003 | Rate limit or quota exceeded (which code means what is unconfirmed) | `Throttled`, with the same handling for all three. No retry loop in the app: it backs off to the next scheduled slot, doubling the pause on repeats (up to 6 h). See `CallBudget.throttledUntil` in data-model.md |
+| 4000 | Wrong signature, AppId or AppSecret (or device clock drift) | `AuthError`. The section asks the user to check the credentials |
+| 2000–2004, 2006–2999, 4001–4999 | Account problems or an invalid parameter (for example a wrong SID or ECU id) | `AuthError`. For the minutely call, first try ECU-id recovery (see data-model.md) |
+| 2005 | Monthly access quota exhausted | `Throttled` |
+| 5000 | No data yet, or a transient server error | `ServiceError(5000)` |
+| 7001, 7002, 7003 | Server rate limit (a per-half-hour limit that lasts at most 30 min) | `Throttled`, with the same handling for all three. No retry loop in the app: it backs off to the next scheduled slot, doubling the pause on repeats (up to 6 h). See `CallBudget.throttledUntil` in data-model.md |
 | any other | Server-side error | `ServiceError(code)` |
 
 A non-200 HTTP status, a timeout or an IO failure maps to `Offline` or `ServiceError`. The body may contain the reason, and it is logged only in debug builds.

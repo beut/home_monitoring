@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Mój dom</string>
+
+    <!-- Pulpit -->
+    <string name="dashboard_title">Mój dom</string>
+    <string name="open_accounts">Konta</string>
+    <string name="pv_title">Fotowoltaika</string>
+    <string name="pv_power_now">Moc teraz</string>
+    <string name="pv_at_time">o %1$s</string>
+    <string name="pv_today">Dziś</string>
+    <string name="pv_month">Miesiąc</string>
+    <string name="pv_year">Rok</string>
+    <string name="pv_lifetime">Łącznie</string>
+    <string name="pv_capacity">%1$s kWp</string>
+    <string name="updated_at">Aktualizacja: %1$s</string>
+    <string name="stale_offline">Brak połączenia — dane z %1$s</string>
+    <string name="stale_throttled">Limit zapytań APsystems — dane z %1$s</string>
+    <string name="stale_service">Usługa niedostępna — dane z %1$s</string>
+    <string name="retry">Spróbuj ponownie</string>
+    <string name="night_power">%1$s — noc</string>
+    <string name="next_update_at">Następna aktualizacja o %1$s</string>
+    <string name="no_data_today">Brak odczytów z dzisiaj</string>
+    <string name="auth_error">Nieprawidłowe dane dostępowe APsystems</string>
+    <string name="fix_in_settings">Popraw w ustawieniach</string>
+    <string name="connect_aps">Podłącz konto APsystems</string>
+    <string name="connect_account">Podłącz konto</string>
+    <string name="error_offline">Brak połączenia z internetem</string>
+    <string name="error_throttled">Limit zapytań APsystems — spróbuj później</string>
+    <string name="error_service">Usługa APsystems niedostępna (kod %1$s)</string>
+    <string name="error_service_nocode">Usługa APsystems niedostępna</string>
+    <string name="msg_fresh">Dane są aktualne (sprzed %1$d min)</string>
+    <string name="msg_retry_soon">Poczekaj chwilę przed kolejną próbą</string>
+    <string name="msg_budget">Wykorzystano miesięczny limit zapytań — kolejna aktualizacja %1$s</string>
+    <string name="msg_night">Noc — kolejna aktualizacja o %1$s</string>
+    <string name="msg_throttled">Limit zapytań APsystems — kolejna próba o %1$s</string>
+
+    <!-- Konta -->
+    <string name="accounts_title">Konta</string>
+    <string name="back">Wstecz</string>
+    <string name="aps_card_title">APsystems (fotowoltaika)</string>
+    <string name="field_app_id">App ID</string>
+    <string name="field_app_secret">App Secret</string>
+    <string name="field_sid">System ID (SID)</string>
+    <string name="show_secret">Pokaż</string>
+    <string name="hide_secret">Ukryj</string>
+    <string name="connect">Połącz</string>
+    <string name="disconnect">Odłącz</string>
+    <string name="cancel">Anuluj</string>
+    <string name="connected_status">Połączono ✓ · %1$s kWp</string>
+    <string name="connected_status_nocap">Połączono ✓</string>
+    <string name="sid_masked">SID: %1$s</string>
+    <string name="disconnect_confirm_title">Odłączyć APsystems?</string>
+    <string name="disconnect_confirm_text">Dane dostępowe i zapisane odczyty zostaną usunięte z telefonu.</string>
+    <string name="err_required">Wypełnij wszystkie pola</string>
+    <string name="err_aps_auth">APsystems: nieprawidłowe App ID, App Secret lub SID</string>
+    <string name="err_aps_offline">APsystems: brak połączenia z internetem</string>
+    <string name="err_aps_throttled">APsystems: przekroczono limit zapytań, spróbuj później</string>
+    <string name="err_aps_service">APsystems: usługa niedostępna (kod %1$s)</string>
+    <string name="panasonic_title">Panasonic (pompa ciepła)</string>
+    <string name="tado_title">tado (pokoje)</string>
+    <string name="soon">Wkrótce</string>
+    <string name="budget_title">Budżet zapytań</string>
+    <string name="budget_used">Wykorzystano %1$d z %2$d w tym miesiącu</string>
+    <string name="budget_limit_label">Limit miesięczny (100–1000)</string>
+    <string name="budget_hint">APsystems pozwala na 1000 zapytań miesięcznie na konto. Reszta zostaje dla innych narzędzi korzystających z tego samego App ID.</string>
+    <string name="location_title">Lokalizacja instalacji</string>
+    <string name="latitude">Szerokość geograficzna</string>
+    <string name="longitude">Długość geograficzna</string>
+    <string name="location_hint">Używana tylko do wyznaczenia wschodu i zachodu słońca.</string>
+    <string name="location_invalid">Nieprawidłowe współrzędne</string>
+    <string name="save">Zapisz</string>
+    <string name="saved">Zapisano</string>
+</resources>

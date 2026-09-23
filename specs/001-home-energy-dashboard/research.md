@@ -30,7 +30,7 @@ Live-verified response shapes:
 
 ## R3. API call quota: 1,000 calls per month (this drives the refresh design)
 
-- **Finding**: The APsystems OpenAPI allows end users **1,000 calls per month** per AppId. The Home Assistant OpenAPI integration tunes its polling to stay under this limit and allows fixed intervals of only 30 min to 2 h. Throttling or quota errors come back as codes 7001, 7002 and 7003 (handled by the reference script).
+- **Finding**: The APsystems OpenAPI allows end users **1,000 calls per month** per AppId. The Home Assistant OpenAPI integration tunes its polling to stay under this limit and allows fixed intervals of only 30 min to 2 h. The monthly quota error is code 2005, and 7001–7003 are short-term rate limits.
 - **Impact on the spec**: A refresh every 5 minutes (FR-006 as first written) would use about 290 calls per day and exhaust the monthly quota in 3–4 days. The quota is also **shared** with the user's own scripts that use the same AppId.
 - **Decision**: A budget-driven refresh policy:
   1. **App budget**: 800 calls per month by default (configurable), leaving about 200 for the user's scripts. The app counts its own calls locally per calendar month.
@@ -38,7 +38,7 @@ Live-verified response shapes:
   3. **Adaptive interval**: `interval = remaining daylight minutes this month / (remaining budget − reserved summary calls)`, never less than 15 min. The reserve holds `ceil(daylight hours / 3) + 1` summary calls for each remaining day, which is about 4 in December and about 7 in June (see data-model.md). That comes to about 30 min in September, about 40 min in June and about 20 min in December.
   4. **Summary** (month/year/lifetime) is fetched at most every 3 h and once after sunset. `details` is fetched only when an account is connected, or when the ECU id is unknown or invalid.
   5. **Refresh on open or manually**: the app fetches only when the cached value is older than the current interval. A manual refresh fetches only when the cached value is more than 10 min old and the budget is not used up. Otherwise it tells the user why no new data was fetched.
-  6. If the API returns 7001, 7002 or 7003, the app marks the source as throttled and keeps showing cached data. The meaning of each code isn't confirmed (the manual PDF couldn't be read), so all three get the same handling: back off until the next slot, doubling the pause on repeats (up to 6 h). The app stops for the month only when its own counter reaches the limit.
+  6. If the API returns 2005, 7001, 7002 or 7003, the app marks the source as throttled and keeps showing cached data. Code 2005 means the monthly quota is exhausted and 7001–7003 are per-half-hour rate limits (per a community integration; the manual PDF couldn't be read). All four get the same handling: back off until the next slot, doubling the pause on repeats (up to 6 h). The app stops for the month only when its own counter reaches the limit.
 - **Alternatives considered**: A fixed 30-min interval, which is simpler but wastes calls at night and still breaks the budget in summer. A background worker, which is out of scope: the spec says refresh happens only while the app is visible.
 
 ## R4. Request signing

@@ -20,7 +20,7 @@ Saved **only after** a successful `details` call (FR-009). Deleted on Odłącz.
 | timezone | ZoneId | `details.data.timezone`. Falls back to `Europe/Warsaw` when invalid |
 | capacityKwp | Double? | `details.data.capacity` (parsed from a string) |
 
-Re-fetched when a `minutely` call fails with an error that suggests the ECU id is invalid (a 2xxx code other than a signature error). Otherwise it is fetched once.
+Re-fetched once when a `minutely` call returns `AuthError`. If `details` then succeeds, the credentials are fine and the ECU id was stale, so the new id is saved and `minutely` is retried once. If `details` also fails with `AuthError`, the credentials are wrong. At most 2 extra calls. Otherwise it is fetched once.
 
 ## SourceConnection (derived)
 
@@ -29,7 +29,7 @@ Re-fetched when a `minutely` call fails with an error that suggests the ECU id i
 | Transition | Trigger |
 |---|---|
 | NotConnected → Connected | Połącz, when `details` returns code 0 |
-| Connected → AuthError | Any call returns a 2xxx code |
+| Connected → AuthError | Any call returns 4000, or another 2xxx/4xxx code (except 2005) that survives ECU-id recovery |
 | AuthError → Connected | The user corrects the credentials and `details` returns 0 |
 | any → NotConnected | Odłącz |
 
@@ -68,15 +68,17 @@ When a snapshot exists, a failed fetch always gives `Data(snapshot, Stale(reason
 |---|---|---|
 | monthKey | YearMonth | When the current month ≠ monthKey, `used` is reset to 0 |
 | used | Int | Incremented **before** every HTTP call to APsystems, including failed ones |
+| lastAttemptAt | Instant? | Set on every call. An automatic refresh is due only after `interval` has passed since `max(fetchedAt, lastAttemptAt)`, so failures don't cause retries every minute. A manual refresh also needs `now − lastAttemptAt ≥ 1 min` |
+| throttleStreak | Int | Consecutive throttled results, used for the backoff. Resets on success |
 | monthlyLimit | Int | Default 800. Allowed range 100–1000 |
-| throttledUntil | Instant? | Set on **any** of 7001/7002/7003 to the next scheduled slot (`RefreshDecision.nextScheduledAt`, at least 15 min ahead). The exact meaning of each code is unconfirmed, so no code blocks the rest of the month. If throttling repeats, the pause doubles each time (15 → 30 → 60 min, capped at 6 h), and a successful call resets it. The app stops for the rest of the month only when its own counter reaches `used >= monthlyLimit` |
+| throttledUntil | Instant? | Set on **any** of 2005/7001/7002/7003 to the next scheduled slot (`RefreshDecision.nextScheduledAt`, at least 15 min ahead). No code blocks the rest of the month (2005 may mean the quota was used by other tools sharing the AppId). If throttling repeats, the pause doubles each time (15 → 30 → 60 min, capped at 6 h), and a successful call resets it. The app stops for the rest of the month only when its own counter reaches `used >= monthlyLimit` |
 
 ## RefreshPolicy (pure function, no storage)
 
 Inputs: now, the system timezone, the location (lat and lon), CallBudget, PvSnapshot, and whether the refresh is manual.
 
 - `isDaylight(now)`: sunrise ≤ now ≤ sunset + 15 min, using the NOAA solar algorithm.
-- `interval`: `max(15 min, remainingDaylightMinutesThisMonth / max(1, remainingBudget − reservedSummaryCalls))`, where `reservedSummaryCalls = Σ over the remaining days of this month (including today) of (ceil(daylightHours(day) / 3) + 1)`. Each day's daylight hours come from SunCalculator. For today, count only the summary slots still ahead. In central Poland that is about 4 per day in December and about 7 per day in June.
+- `interval`: `max(15 min, remainingDaylightMinutesThisMonth / max(1, remainingBudget − reservedSummaryCalls))`, where `reservedSummaryCalls = Σ over the remaining days of this month (including today) of (floor((daylightMinutes(day) + 15) / 180) + 2)`. That is the exact number of 3-hourly daylight checks (including the 15-min grace after sunset) plus one post-sunset check. It is usually equal to `ceil(daylightHours / 3) + 1`. Each day's daylight hours come from SunCalculator. For today, count only the summary slots still ahead. In central Poland that is about 4 per day in December and about 7 per day in June.
 - `shouldFetchMinutely`:
   - It is daylight, **and** the budget is not used up, **and** the source is not throttled, **and** either:
     - it is an automatic refresh and `now − fetchedAt ≥ interval`, or

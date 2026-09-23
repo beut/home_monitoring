@@ -50,3 +50,18 @@ apsystems.sid=…
 - Every requirement marked **Delivered** in the "Requirement scope for etap 1" table in [plan.md](plan.md) is met. Deferred and not-applicable requirements are listed in that same table.
 - SC-002, SC-003 and SC-005 hold for PV (SC-005 is checked in step 6).
 - Using the app normally stays under the monthly budget. This follows from RefreshPolicy and is checked by its unit tests.
+
+## Validation log
+
+### 2026-09-23: implementation run (`/speckit-implement`)
+
+- `./gradlew testDebugUnitTest`: **68 tests, 0 failures**. This covers:
+  - the signer test vector;
+  - DTO parsing of the live response formats;
+  - API code mapping, including 2005/4000/5000;
+  - sunrise and sunset for June, September and December;
+  - RefreshPolicy, including whole-month simulations for June, September and December, each ≤ 800 calls and still refreshing on the last day;
+  - PvRepository (US1 and US3);
+  - AccountsViewModel (US2).
+- `./gradlew assembleDebug` and `assembleRelease`: OK. The release APK contains no credentials; the debug APK contains the `local.properties` prefill, as intended.
+- **Manual smoke test (steps 1–9): not run yet.** There is no device attached, and the emulator can't run because `/dev/kvm` needs membership in the `kvm` group. Run steps 1–9 on a phone and add the results here.
